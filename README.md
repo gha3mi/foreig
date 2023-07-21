@@ -20,6 +20,9 @@ To use ForEig, follow the steps below:
 
    ```shell
    git clone https://github.com/gha3mi/foreig.git
+   ```
+
+   ```shell
    cd foreig
    ```
 
