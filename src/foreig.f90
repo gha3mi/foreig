@@ -119,17 +119,17 @@ contains
       else
          call dgeev('N', 'V', m, A, m, wr, wi, vl, m, vr, m, work1, -1, info)
       end if
-   
+
       lwork = nint(work1(1))
       allocate(work(lwork))
-   
+
       if (present(eig_vecl)) then
          call dgeev('V', 'V', m, A, m, wr, wi, vl, m, vr, m, work, lwork, info)
          eig_vecl = vl
       else
          call dgeev('N', 'V', m, A, m, wr, wi, vl, m, vr, m, work, lwork, info)
       end if
-   
+
       eig_val  = wr
       eig_vecr = vr
 
@@ -138,7 +138,7 @@ contains
    end subroutine dgeev_rel
    !===============================================================================
 
-   
+
    !===============================================================================
    !> author: Seyed Ali Ghasemi
    pure subroutine dggev_rel(matrix, eig_vecr, eig_val, eig_vecl)
@@ -151,6 +151,7 @@ contains
       real(rk), dimension(:), allocatable                          :: work
       integer                                                      :: m, lwork, info
       real(rk)                                                     :: work1(1)
+      real(rk), dimension(size(matrix,1),size(matrix,1))           :: A
 
       interface
          pure subroutine dggev(fjobvl, fjobvr, fn, fa, flda, fb, ldb, &
@@ -168,21 +169,26 @@ contains
       m = size(matrix, 1)
       allocate(eig_val(m), eig_vecr(m, m))
       eig_vecr = matrix
+      A = matrix
 
       if (present(eig_vecl)) then
          eig_vecl = matrix
-         call dggev('V', 'V', m, eig_vecl, m, eig_vecr, m, alphar, alphai, beta, vl, m, vr, m, work1, -1, info)
+         call dggev('V', 'V', m, eig_vecl, m,&
+            eig_vecr, m, alphar, alphai, beta, vl, m, vr, m, work1, -1, info)
       else
-         call dggev('N', 'V', m, eig_vecr, m, matrix, m, alphar, alphai, beta, vl, m, vr, m, work1, -1, info)
+         call dggev('N', 'V', m, eig_vecr, m,&
+            A, m, alphar, alphai, beta, vl, m, vr, m, work1, -1, info)
       end if
 
       lwork = nint(work1(1))
       allocate(work(lwork))
 
       if (present(eig_vecl)) then
-         call dggev('V', 'V', m, eig_vecl, m, eig_vecr, m, alphar, alphai, beta, vl, m, vr, m, work, lwork, info)
+         call dggev('V', 'V', m, eig_vecl, m, &
+            eig_vecr, m, alphar, alphai, beta, vl, m, vr, m, work, lwork, info)
       else
-         call dggev('N', 'V', m, eig_vecr, m, matrix, m, alphar, alphai, beta, vl, m, vr, m, work, lwork, info)
+         call dggev('N', 'V', m, eig_vecr, m,&
+            A, m, alphar, alphai, beta, vl, m, vr, m, work, lwork, info)
       end if
 
       eig_val = alphar / beta
