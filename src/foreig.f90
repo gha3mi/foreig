@@ -113,15 +113,25 @@ contains
       m = size(matrix, 1)
       A = matrix
 
-      call dgeev('V', 'V', m, A, m, wr, wi, vl, m, vr, m, work1, -1, info)
+      if (present(eig_vecl)) then
+         eig_vecl = matrix
+         call dgeev('V', 'V', m, A, m, wr, wi, vl, m, vr, m, work1, -1, info)
+      else
+         call dgeev('N', 'V', m, A, m, wr, wi, vl, m, vr, m, work1, -1, info)
+      end if
+   
       lwork = nint(work1(1))
       allocate(work(lwork))
-
-      call dgeev('V', 'V', m, A, m, wr, wi, vl, m, vr, m, work, lwork, info)
-
+   
+      if (present(eig_vecl)) then
+         call dgeev('V', 'V', m, A, m, wr, wi, vl, m, vr, m, work, lwork, info)
+         eig_vecl = vl
+      else
+         call dgeev('N', 'V', m, A, m, wr, wi, vl, m, vr, m, work, lwork, info)
+      end if
+   
       eig_val  = wr
       eig_vecr = vr
-      if (present(eig_vecl)) eig_vecl = vl
 
       deallocate(work)
 
