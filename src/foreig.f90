@@ -1,83 +1,128 @@
 module foreig
 
-  use kinds
+   use kinds
 
-  implicit none
+   implicit none
 
-  private
-  public :: eig
+   private
+   public :: eig
 
    !===============================================================================
-  interface eig
-     procedure :: eig_rel
-  end interface
-  !===============================================================================
+   interface eig
+      procedure :: eig_rel
+   end interface
+   !===============================================================================
 
 contains
 
-  !===============================================================================
-  !> author: Seyed Ali Ghasemi
-  pure subroutine eig_rel(matrix, eig_vec, eig_val, method)
-     real(rk), dimension(:,:),              intent(in)           :: matrix
-     character(*),                          intent(in), optional :: method
-     real(rk), dimension(:,:), allocatable, intent(out)          :: eig_vec
-     real(rk), dimension(:),   allocatable, intent(out)          :: eig_val
+   !===============================================================================
+   !> author: Seyed Ali Ghasemi
+   pure subroutine eig_rel(matrix, eig_vecr, eig_val, eig_vecl, method)
+      real(rk), dimension(:,:),              intent(in)            :: matrix
+      character(*),                          intent(in), optional  :: method
+      real(rk), dimension(:,:), allocatable, intent(out)           :: eig_vecr
+      real(rk), dimension(:,:), allocatable, intent(out), optional :: eig_vecl
+      real(rk), dimension(:),   allocatable, intent(out)           :: eig_val
 
-     if (.not. present(method)) then
-        call dsyev_rel(matrix, eig_vec, eig_val)
-     else
+      if (.not. present(method)) then
+         call dgeev_rel(matrix, eig_vecr, eig_val)
+      else
 
-        select case (method)
-         case ('syev')
-           call dsyev_rel(matrix, eig_vec, eig_val)
-        end select
+         select case (method)
+          case ('syev')
+            call dsyev_rel(matrix, eig_vecr, eig_val)
+          case ('geev')
+            call dgeev_rel(matrix, eig_vecr, eig_val, eig_vecl)
+         end select
 
-     end if
+      end if
 
-  end subroutine eig_rel
-  !===============================================================================
+   end subroutine eig_rel
+   !===============================================================================
 
 
-  !===============================================================================
-  !> author: Seyed Ali Ghasemi
-  pure subroutine dsyev_rel(matrix, eig_vec, eig_val)
-     real(rk), dimension(:,:),              intent(in)  :: matrix
-     real(rk), dimension(:,:), allocatable, intent(out) :: eig_vec
-     real(rk), dimension(:),   allocatable, intent(out) :: eig_val
-     real(rk), dimension(:),   allocatable              :: work
-     real(rk), dimension(size(matrix,1),size(matrix,1)) :: A
-     integer                                            :: i, lwork, m, info
-     real(rk)                                           :: work1(1)
+   !===============================================================================
+   !> author: Seyed Ali Ghasemi
+   pure subroutine dsyev_rel(matrix, eig_vecr, eig_val)
+      real(rk), dimension(:,:),              intent(in)  :: matrix
+      real(rk), dimension(:,:), allocatable, intent(out) :: eig_vecr
+      real(rk), dimension(:),   allocatable, intent(out) :: eig_val
+      real(rk), dimension(:),   allocatable              :: work
+      real(rk), dimension(size(matrix,1),size(matrix,1)) :: A
+      integer                                            :: lwork, m, info
+      real(rk)                                           :: work1(1)
 
-     interface
-        pure subroutine dsyev(fjobz, fuplo, fn, fA, flda, fw, fwork, flwork, finfo)
-           import rk
-           character, intent(in)    :: fjobz, fuplo
-           integer,   intent(in)    :: fn
-           integer,   intent(in)    :: flda
-           integer,   intent(in)    :: flwork
-           integer,   intent(out)   :: finfo
-           real(rk),  intent(inout) :: fA(flda,*)
-           real(rk),  intent(out)   :: fw(*)
-           real(rk),  intent(out)   :: fwork(*)
-        end subroutine
-     end interface
+      interface
+         pure subroutine dsyev(fjobz, fuplo, fn, fA, flda, fw, fwork, flwork, finfo)
+            import rk
+            character, intent(in)    :: fjobz, fuplo
+            integer,   intent(in)    :: fn
+            integer,   intent(in)    :: flda
+            integer,   intent(in)    :: flwork
+            integer,   intent(out)   :: finfo
+            real(rk),  intent(inout) :: fA(flda,*)
+            real(rk),  intent(out)   :: fw(*)
+            real(rk),  intent(out)   :: fwork(*)
+         end subroutine
+      end interface
 
-     m = size(matrix,1)
-     A = matrix
+      m = size(matrix,1)
+      A = matrix
 
-     call dsyev('V', 'U', m, A, m, eig_val, work1, -1, info)
-     lwork = nint(work1(1))
-     allocate(work(lwork))
+      call dsyev('V', 'U', m, A, m, eig_val, work1, -1, info)
+      lwork = nint(work1(1))
+      allocate(work(lwork))
 
-     allocate(eig_vec(m,m), eig_val(m))
+      allocate(eig_vecr(m,m), eig_val(m))
 
-     call dsyev('V', 'U', m, A, m, eig_val, work, lwork, info)
+      call dsyev('V', 'U', m, A, m, eig_val, work, lwork, info)
 
-     eig_vec = A
+      eig_vecr = A
 
-     deallocate(work)
-  end subroutine dsyev_rel
-  !===============================================================================
+      deallocate(work)
+   end subroutine dsyev_rel
+   !===============================================================================
+
+   !===============================================================================
+   !> author: Seyed Ali Ghasemi
+   pure subroutine dgeev_rel(matrix, eig_vecr, eig_val, eig_vecl)
+      real(rk), dimension(:,:), intent(in)                         :: matrix
+      real(rk), dimension(:),   allocatable, intent(out)           :: eig_val
+      real(rk), dimension(:,:), allocatable, intent(out)           :: eig_vecr
+      real(rk), dimension(:,:), allocatable, intent(out), optional :: eig_vecl
+      real(rk), dimension(size(matrix,1))                          :: wr, wi
+      real(rk), dimension(size(matrix,1),size(matrix,1))           :: vl, vr
+      real(rk), dimension(size(matrix,1),size(matrix,1))           :: A
+      real(rk), dimension(:), allocatable                          :: work
+      integer                                                      :: m, lwork, info
+      real(rk)                                                     :: work1(1)
+
+      interface
+         pure subroutine dgeev(fjobvl, fjobvr, fn, fA, flda, fwr, fwi, fvl, fldvl, fvr, fldvr, fwork, flwork, finfo)
+            import :: rk
+            character, intent(in)    :: fjobvl, fjobvr
+            integer,   intent(in)    :: fn, flda, fldvl, fldvr, flwork, finfo
+            real(rk),  intent(inout) :: fA(flda, *)
+            real(rk),  intent(out)   :: fwr(fn), fwi(fn), fvl(fldvl, *), fvr(fldvr, *), fwork(flwork)
+         end subroutine
+      end interface
+
+      m = size(matrix, 1)
+      A = matrix
+
+      call dgeev('V', 'V', m, A, m, wr, wi, vl, m, vr, m, work1, -1, info)
+      lwork = nint(work1(1))
+      allocate(work(lwork))
+
+      call dgeev('V', 'V', m, A, m, wr, wi, vl, m, vr, m, work, lwork, info)
+
+      eig_val  = wr
+      eig_vecr = vr
+      if (present(eig_vecl)) eig_vecl = vl
+
+      deallocate(work)
+
+   end subroutine dgeev_rel
+   !===============================================================================
 
 end module foreig
