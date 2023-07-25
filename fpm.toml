@@ -23,3 +23,10 @@ kinds = {git="https://github.com/gha3mi/kinds.git"}
 name       = "test1"
 source-dir = "test"
 main       = "test1.f90"
+
+[[test]]
+name       = "benchmark"
+source-dir = "test"
+main       = "benchmark.f90"
+[test.dependencies]
+fortime    = {git="https://github.com/gha3mi/fortime.git"}
