@@ -1,67 +1,77 @@
-![ForEig](media/logo.png)
-============
+[![GitHub](https://img.shields.io/badge/GitHub-ForEig-blue.svg?style=social&logo=github)](https://github.com/gha3mi/foreig)
+[![Version](https://img.shields.io/github/release/gha3mi/foreig.svg)](https://github.com/gha3mi/foreig/releases/latest)
+[![Documentation](https://img.shields.io/badge/ford-Documentation%20-blueviolet.svg)](https://gha3mi.github.io/foreig/)
+[![License](https://img.shields.io/github/license/gha3mi/foreig?color=green)](https://github.com/gha3mi/foreig/blob/main/LICENSE)
+[![Build](https://github.com/gha3mi/foreig/actions/workflows/ci.yml/badge.svg)](https://github.com/gha3mi/foreig/actions/workflows/ci.yml)
+
+<img alt="ForEig" src="https://github.com/gha3mi/foreig/raw/main/media/logo.png" width="750">
 
 **ForEig**: A Fortran library for eigenvalue and eigenvector calculations.
 
+## Usage
 
-## How to Use ForEig
+```Fortran
+use foreig, only: eig
 
-### Installation of ForEig Library
+call eig(A, eig_vec, eig_val ,method='ggev') ! method='syev' .or. 'geev' .or. 'ggev'
+```
 
-To use ForEig, follow the steps below:
+## fpm dependency
 
-- **Reuirements:**
-
-  Fortran Compiler, LAPACK or MKL Libraries
-
-- **Clone the repository:**
-
-   You can clone the ForEig repository from GitHub using the following command:
-
-   ```shell
-   git clone https://github.com/gha3mi/foreig.git
-   ```
-
-   ```shell
-   cd foreig
-   ```
-
-- **Build using the Fortran Package Manager (fpm):**
-
-   ForEig can be built using [fpm](https://github.com/fortran-lang/fpm).
-   Make sure you have fpm installed, and then execute the following command:
-
-  **GNU Fortran Compiler (gfortran)**
-
-   ```shell
-   fpm install --prefix . --compiler gfortran --flag "-Wno-line-truncation -Ofast -march=native -llapack"
-   ```
-
-  **Intel Fortran Compiler (ifort)**
-
-   ```shell
-   fpm install --prefix . --compiler ifort --flag "-Ofast -xHost -mtune=native -qmkl=parallel"
-   ```
-
-  **Intel Fortran Compiler (ifx)**
-
-    ```shell
-   fpm install --prefix . --compiler ifx --flag "-Ofast -xHost -mtune=native -qmkl=parallel"
-   ```
-
-### Adding ForEig as an fpm Dependency
-
-If you want to use ForEig as a dependency in your own fpm project,
+If you want to use `ForEig` as a dependency in your own fpm project,
 you can easily include it by adding the following line to your `fpm.toml` file:
 
 ```toml
 [dependencies]
-foreig = {git="https://github.com/gha3mi/foreig.git"}
+forieig = {git="https://github.com/gha3mi/forieig.git"}
 ```
 
-## API Documentation
+## How to run tests
 
-To generate the API documentation for the `ForEig` module using
+**Reuirements:**
+
+Fortran Compiler, LAPACK or MKL Libraries
+
+**Clone the repository:**
+
+You can clone the `ForEig` repository from GitHub using the following command:
+
+```shell
+git clone https://github.com/gha3mi/forieig.git
+```
+
+```shell
+cd forieig
+```
+
+**Intel Fortran Compiler (ifort)**
+
+```shell
+fpm @ifort-test
+```
+**Intel Fortran Compiler (ifx)**
+
+```shell
+fpm @ifx-test
+```
+
+**GNU Fortran Compiler (gfortran)**
+
+```shell
+fpm @gfortran-test
+```
+
+**NVIDIA Compiler (nvfortran)**
+
+```shell
+fpm @nvfortran-test
+```
+
+## API documentation
+
+The most up-to-date API documentation for the master branch is available
+[here](https://gha3mi.github.io/forieig/).
+To generate the API documentation for `ForEig` using
 [ford](https://github.com/Fortran-FOSS-Programmers/ford) run the following
 command:
 
@@ -70,4 +80,6 @@ ford ford.yml
 ```
 
 ## Contributing
-Contributions to `ForEig` are welcome! If you find any issues or would like to suggest improvements, please open an issue or submit a pull request.
+
+Contributions to `ForEig` are welcome!
+If you find any issues or would like to suggest improvements, please open an issue.
