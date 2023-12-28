@@ -18,7 +18,6 @@ source-form = "free"
 
 [preprocess]
 [preprocess.cpp]
-[preprocess.fypp]
 
 [dependencies]
 kinds = {git="https://github.com/gha3mi/kinds.git"}
